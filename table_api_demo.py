@@ -10,7 +10,7 @@ This module:
     4. Inserts the source table data into the sink table
 """
 
-from pyflink.table import EnvironmentSettings, StreamTableEnvironment
+from pyflink.table import EnvironmentSettings, StreamTableEnvironment  # type: ignore
 import os
 import json
 
@@ -41,7 +41,7 @@ def get_application_properties():
             properties = json.loads(contents)
             return properties
     else:
-        print('A file at "{}" was not found'.format(APPLICATION_PROPERTIES_FILE_PATH))
+        print(f'A file at "{APPLICATION_PROPERTIES_FILE_PATH}" was not found')
 
 
 def property_map(props, property_group_id):
@@ -51,9 +51,9 @@ def property_map(props, property_group_id):
 
 
 def create_table(table_name, stream_name, region, stream_initpos = None):
-    init_pos = "\n'scan.stream.initpos' = '{0}',".format(stream_initpos) if stream_initpos is not None else ''
+    init_pos = stream_initpos if stream_initpos else ''
 
-    return """ CREATE TABLE {0} (
+    return f""" CREATE TABLE {table_name} (
                 ticker VARCHAR(6),
                 price DOUBLE,
                 event_time TIMESTAMP(3),
@@ -62,11 +62,12 @@ def create_table(table_name, stream_name, region, stream_initpos = None):
               PARTITIONED BY (ticker)
               WITH (
                 'connector' = 'kinesis',
-                'stream' = '{1}',
-                'aws.region' = '{2}',{3}
+                'stream' = '{stream_name}',
+                'aws.region' = '{region}',
+                'scan.stream.initpos' = '{init_pos}',
                 'format' = 'json',
                 'json.timestamp-format.standard' = 'ISO-8601'
-              ) """.format(table_name, stream_name, region, init_pos)
+              ) """
 
 def create_print_table(table_name):
     return f"""
@@ -96,6 +97,7 @@ def main():
     # tables
     input_table_name = "ExampleInputStream"
     output_table_name = "ExampleOutputStream"
+    output_console_table = "ExampleOutputStreamPrint"
 
     # get application properties
     props = get_application_properties()
@@ -114,11 +116,28 @@ def main():
     table_env.execute_sql(create_table(input_table_name, input_stream, input_region, stream_initpos))
 
     # 3. Creates a sink table writing to a Kinesis Data Stream
-    # table_env.execute_sql(create_table(output_table_name, output_stream, output_region))
-    table_env.execute_sql(create_print_table(output_table_name))
+    table_env.execute_sql(create_table(output_table_name, output_stream, output_region))
+    table_env.execute_sql(create_print_table(output_console_table))
 
     # 4. Inserts the source table data into the sink table
-    table_result = table_env.execute_sql("INSERT INTO {0} SELECT * FROM {1}".format(output_table_name, input_table_name))
+    table_env.execute_sql(
+        f"""
+        INSERT INTO {output_table_name}
+        SELECT * FROM {input_table_name}
+        WHERE
+            ticker = 'AAPL'
+            AND price > 80
+        """
+    )
+    table_result = table_env.execute_sql(
+        f"""
+        INSERT INTO {output_console_table}
+        SELECT * FROM {input_table_name}
+        WHERE
+            ticker = 'AAPL'
+            AND price > 80
+        """
+    )
 
     # get job status through TableResult
     if is_local:

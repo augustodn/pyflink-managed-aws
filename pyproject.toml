@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "aws-flink-managed"
+version = "0.1.0"
+description = "AWS pyFlink getting started"
+authors = ["Augusto de Nevrezé <adenevreze@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+apache-flink = "1.18"
+boto3 = "^1.34.143"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

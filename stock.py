@@ -1,19 +1,21 @@
 import datetime
 import json
 import random
-import boto3
+import boto3  # type: ignore
+from typing import Any
 
 STREAM_NAME = "ExampleInputStream"
 
 
-def get_data():
+def get_data() -> dict[str, Any]:
     return {
         'event_time': datetime.datetime.now().isoformat(),
         'ticker': random.choice(['AAPL', 'AMZN', 'MSFT', 'INTC', 'TBV']),
-        'price': round(random.random() * 100, 2)}
+        'price': round(random.random() * 100, 2)
+    }
 
 
-def generate(stream_name, kinesis_client):
+def generate(stream_name: str, kinesis_client: boto3.client) -> None:
     while True:
         data = get_data()
         print(data)

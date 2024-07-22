@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 """
-getting-started.py
-~~~~~~~~~~~~~~~~~~~
 This module:
     1. Creates a table environment
     2. Creates a source table from a Kinesis Data Stream
     3. Creates a sink table writing to a Kinesis Data Stream
-    4. Inserts the source table data into the sink table
+    4. Creates a sink table printing to the console
+    5. Inserts filtered data from the source table data into the sink table and
+       prints it to the console
 """
 
 from pyflink.table import EnvironmentSettings, StreamTableEnvironment  # type: ignore

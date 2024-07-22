@@ -53,21 +53,23 @@ def property_map(props, property_group_id):
 def create_table(table_name, stream_name, region, stream_initpos = None):
     init_pos = stream_initpos if stream_initpos else ''
 
-    return f""" CREATE TABLE {table_name} (
-                ticker VARCHAR(6),
-                price DOUBLE,
-                event_time TIMESTAMP(3),
-                WATERMARK FOR event_time AS event_time - INTERVAL '5' SECOND
-              )
-              PARTITIONED BY (ticker)
-              WITH (
-                'connector' = 'kinesis',
-                'stream' = '{stream_name}',
-                'aws.region' = '{region}',
-                'scan.stream.initpos' = '{init_pos}',
-                'format' = 'json',
-                'json.timestamp-format.standard' = 'ISO-8601'
-              ) """
+    return f"""
+        CREATE TABLE {table_name} (
+            ticker VARCHAR(6),
+            price DOUBLE,
+            event_time TIMESTAMP(3),
+            WATERMARK FOR event_time AS event_time - INTERVAL '5' SECOND
+        )
+        PARTITIONED BY (ticker)
+        WITH (
+            'connector' = 'kinesis',
+            'stream' = '{stream_name}',
+            'aws.region' = '{region}',
+            'scan.stream.initpos' = '{init_pos}',
+            'format' = 'json',
+            'json.timestamp-format.standard' = 'ISO-8601'
+        )
+    """
 
 def create_print_table(table_name):
     return f"""

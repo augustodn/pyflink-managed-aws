@@ -1,3 +1,6 @@
 *.jar
 .vscode/
 *.zip
+*.xml
+!pom.xml
+pom.properties

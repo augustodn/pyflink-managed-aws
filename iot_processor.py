@@ -21,6 +21,13 @@ if is_local:
         "pipeline.jars",
         f"file:///{CURRENT_DIR}/target/pyflink-dependencies.jar",
     )
+    table_env.get_config().get_configuration().set_string(
+        "execution.checkpointing.mode", "EXACTLY_ONCE"
+    )
+
+    table_env.get_config().get_configuration().set_string(
+        "execution.checkpointing.interval", "1 min"
+    )
 
 def get_application_properties():
     if os.path.isfile(APPLICATION_PROPERTIES_FILE_PATH):
@@ -84,6 +91,26 @@ def create_output_table(table_name, stream_name, region):
         )
     """
 
+def create_s3_table(table_name, bucket_name):
+    return f"""
+        CREATE TABLE {table_name} (
+            message_id VARCHAR(32),
+            sensor_id INTEGER,
+            temperature FLOAT,
+            alert STRING,
+            event_time TIMESTAMP_LTZ(3),
+            WATERMARK FOR event_time AS event_time - INTERVAL '5' SECOND
+        )
+        PARTITIONED BY (sensor_id)
+        WITH (
+            'connector' = 'filesystem',
+            'path' = 's3://{bucket_name}/iot/',
+            'format' = 'parquet',
+            'sink.partition-commit.policy.kind'='success-file',
+            'sink.partition-commit.delay' = '1 min'
+        )
+    """
+
 def create_print_table(table_name):
     return f"""
         CREATE TABLE {table_name} (
@@ -115,6 +142,8 @@ def main():
     # tables
     input_table_name = "ExampleInputStream"
     output_table_name = "ExampleOutputStream"
+    s3_table_name = "ExampleS3Table"
+    bucket_name = "339713014948-data-lake"
 
     # get application properties
     props = get_application_properties()
@@ -134,11 +163,27 @@ def main():
 
     # 3. Creates a sink table writing to a Kinesis Data Stream
     table_env.execute_sql(create_output_table(output_table_name, output_stream, output_region))
+    table_env.execute_sql(create_s3_table(s3_table_name, bucket_name))
 
     # 4. Inserts the source table data into the sink table
-    table_result = table_env.execute_sql(
+    table_env.execute_sql(
         f"""
         INSERT INTO {output_table_name}
+        SELECT
+            message_id,
+            sensor_id,
+            message.temperature AS temperature,
+            'High temperature detected' AS alert,
+            event_time
+        FROM {input_table_name}
+        WHERE
+            message.temperature > 30
+        """
+    )
+
+    table_result = table_env.execute_sql(
+        f"""
+        INSERT INTO {s3_table_name}
         SELECT
             message_id,
             sensor_id,

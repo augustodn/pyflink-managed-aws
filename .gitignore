@@ -1,6 +1,5 @@
 *.jar
 .vscode/
 *.zip
-*.xml
-!pom.xml
+dependency-reduced-pom.xml
 pom.properties

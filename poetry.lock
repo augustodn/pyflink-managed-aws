@@ -77,29 +77,29 @@ test = ["cryptography (>=36.0.0)", "freezegun (>=0.3.12)", "hypothesis (>5.0.0,<
 
 [[package]]
 name = "apache-flink"
-version = "1.19.0"
+version = "1.19.1"
 description = "Apache Flink Python API"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "apache-flink-1.19.0.tar.gz", hash = "sha256:790c4c20e2126955149535b4136015ff84cb0986df5c98d97926f77850890d3c"},
-    {file = "apache_flink-1.19.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:e0e7e07c51c9949bc7b813eba98c88a9bab4a5895435ade503a245519442a0b4"},
-    {file = "apache_flink-1.19.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:e00b25bc2eac4e6b7929ae74b9dfacecc0e62283d897d7a6bdd1b842058f99c3"},
-    {file = "apache_flink-1.19.0-cp310-cp310-manylinux1_x86_64.whl", hash = "sha256:8c391e274e98512d620bb16c87f2d5e253fa8b60fa6f37974f84842fcfceb231"},
-    {file = "apache_flink-1.19.0-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:8a209a116467291e1d5c0d7d9207b66d5f964222ab83a8ab3612725abd3ab796"},
-    {file = "apache_flink-1.19.0-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:47ce1a6ca7b25fee7fb68f6f952f901eb4f296a746c835f4eabd883623d52583"},
-    {file = "apache_flink-1.19.0-cp311-cp311-manylinux1_x86_64.whl", hash = "sha256:fb607231f5c80ff232ab67925a1df7f8784c99e153c283f464cf59e0ef5873b5"},
-    {file = "apache_flink-1.19.0-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:beea369a6625b35d37ea45dfa70229415fff14883ecdfc1d9d7e97eb78b9fd7a"},
-    {file = "apache_flink-1.19.0-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:100b8d77f084856066005d186a9790a6ac621e4081732fcb0dcff34cc6317230"},
-    {file = "apache_flink-1.19.0-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:c28cd57e12a83e014aae4d647c12c8e46be8519708dd94471ccbd917b180e000"},
-    {file = "apache_flink-1.19.0-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:9c4fe371af27710fdd962ffab9fb3bd3b46295dcccd02b99767ba430010280b8"},
-    {file = "apache_flink-1.19.0-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:bc7b442b510ee4ed1e23e7521f44895010859945a5698aa22953d5faaa63af01"},
-    {file = "apache_flink-1.19.0-cp39-cp39-manylinux1_x86_64.whl", hash = "sha256:2eecb2b7f85fb5bb57fc8c22cfcd6cbc721cc292e4310a6568e717c4cd746f96"},
+    {file = "apache-flink-1.19.1.tar.gz", hash = "sha256:f999e3ede4868b3a06e8056edb27b9f2df67b42a8a27170aa55a03e520083386"},
+    {file = "apache_flink-1.19.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:64fc162dcdf8c6279097276aad9c930af7939ce7e4e2b3f3376cb7d694036743"},
+    {file = "apache_flink-1.19.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:fc13c388e091dc8ed17e59c3786c5bebf0470e67424ae861de4bb47196b9ac97"},
+    {file = "apache_flink-1.19.1-cp310-cp310-manylinux1_x86_64.whl", hash = "sha256:5b4f86f98f5102124d51567ef12a52b37ea0b4803633c001e188422eade93289"},
+    {file = "apache_flink-1.19.1-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:452390143e68b7d2e36359b5d7991802a8caadb2063246ac630d64c2393c7a4a"},
+    {file = "apache_flink-1.19.1-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:c430aca50a1d63b74ec1a079b3c259fcbcb1da3fd09b04cca300d40711481e32"},
+    {file = "apache_flink-1.19.1-cp311-cp311-manylinux1_x86_64.whl", hash = "sha256:f3b2c4eacae90e6ef148fea0b5df65ad839498581f0c8282480200504c402490"},
+    {file = "apache_flink-1.19.1-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:71a25b2301ae230695b6f4c9a274c004e3abd511333d40099ac5b527943dc4c1"},
+    {file = "apache_flink-1.19.1-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:1fde74b05fb4080a6afb60d7104fcfb510c07fa2c889dff06a8a3aa23127dcaa"},
+    {file = "apache_flink-1.19.1-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:ccf54143743404a7df5ae89b191a759db4f382c66529a6963e19a022abca4b9e"},
+    {file = "apache_flink-1.19.1-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:f5925381006fe4116a8a3f02134382f43713ae97f779a541100b407c08de8d5c"},
+    {file = "apache_flink-1.19.1-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:40fed22b83db1ffb1c5c8e402f89a6c3fd5471287c2fa5d74fb9e6cc57bfb764"},
+    {file = "apache_flink-1.19.1-cp39-cp39-manylinux1_x86_64.whl", hash = "sha256:57104410c2b5faa06b796d06ec99fed53559053bb4fb328cf4f66f2c8a7ca9c7"},
 ]
 
 [package.dependencies]
 apache-beam = ">=2.43.0,<2.49.0"
-apache-flink-libraries = ">=1.19.0,<1.19.1"
+apache-flink-libraries = ">=1.19.1,<1.19.2"
 avro-python3 = ">=1.8.1,<1.9.2 || >1.9.2"
 cloudpickle = ">=2.2.0"
 fastavro = ">=1.1.0,<1.8.0 || >1.8.0"
@@ -117,12 +117,12 @@ requests = ">=2.26.0"
 
 [[package]]
 name = "apache-flink-libraries"
-version = "1.19.0"
+version = "1.19.1"
 description = "Apache Flink Libraries"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "apache-flink-libraries-1.19.0.tar.gz", hash = "sha256:bb3115c1c63702f95c3f89d5d952e9d98e26fd35b980a265d139790a6ea2c2a2"},
+    {file = "apache-flink-libraries-1.19.1.tar.gz", hash = "sha256:f5e6a896e8e931120be74ae0425b604743f95baddd50406277fc3a600153484d"},
 ]
 
 [[package]]
@@ -141,17 +141,17 @@ zstandard = ["zstandard"]
 
 [[package]]
 name = "boto3"
-version = "1.34.146"
+version = "1.34.147"
 description = "The AWS SDK for Python"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "boto3-1.34.146-py3-none-any.whl", hash = "sha256:7ec568fb19bce82a70be51f08fddac1ef927ca3fb0896cbb34303a012ba228d8"},
-    {file = "boto3-1.34.146.tar.gz", hash = "sha256:5686fe2a6d1aa1de8a88e9589cdcc33361640d3d7a13da718a30717248886124"},
+    {file = "boto3-1.34.147-py3-none-any.whl", hash = "sha256:e1cef9a1a301866bcdee32ae0c699465eb2345f9a8e613a5835821430165ff6d"},
+    {file = "boto3-1.34.147.tar.gz", hash = "sha256:9ec1c6ab22588242a47549f51a63dfc7c21fdf95a94820fc6e629ab060c38bd9"},
 ]
 
 [package.dependencies]
-botocore = ">=1.34.146,<1.35.0"
+botocore = ">=1.34.147,<1.35.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.10.0,<0.11.0"
 
@@ -160,13 +160,13 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "botocore"
-version = "1.34.146"
+version = "1.34.147"
 description = "Low-level, data-driven core of boto 3."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "botocore-1.34.146-py3-none-any.whl", hash = "sha256:3fd4782362bd29c192704ebf859c5c8c5189ad05719e391eefe23088434427ae"},
-    {file = "botocore-1.34.146.tar.gz", hash = "sha256:849cb8e54e042443aeabcd7822b5f2b76cb5cfe33fe3a71f91c7c069748a869c"},
+    {file = "botocore-1.34.147-py3-none-any.whl", hash = "sha256:be94a2f4874b1d1705cae2bd512c475047497379651678593acb6c61c50d91de"},
+    {file = "botocore-1.34.147.tar.gz", hash = "sha256:2e8f000b77e4ca345146cb2edab6403769a517b564f627bb084ab335417f3dbe"},
 ]
 
 [package.dependencies]
@@ -1393,4 +1393,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.12"
-content-hash = "fda5434eb4a832577578053f9ed889cc1f54742599f5ba0d10201e0e3dcb30fd"
+content-hash = "dd5217707c5f7583a14a4f36854e836070013e9435bac7c5b005847c7b3fc633"

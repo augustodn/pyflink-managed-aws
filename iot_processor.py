@@ -19,7 +19,7 @@ if is_local:
     CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
     table_env.get_config().get_configuration().set_string(
         "pipeline.jars",
-        f"file:///{CURRENT_DIR}/lib/flink-sql-connector-kinesis-4.3.0-1.19.jar",
+        f"file:///{CURRENT_DIR}/target/pyflink-dependencies.jar",
     )
 
 def get_application_properties():

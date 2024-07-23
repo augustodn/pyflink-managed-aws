@@ -5,8 +5,7 @@ This module:
     1. Creates a table environment
     2. Creates a source table from a Kinesis Data Stream
     3. Creates a sink table writing to a Kinesis Data Stream
-    4. Creates a sink table printing to the console
-    5. Inserts filtered data from the source table data into the sink table and
+    4. Inserts filtered data from the source table data into the sink table and
        prints it to the console
 """
 
@@ -99,7 +98,6 @@ def main():
     # tables
     input_table_name = "ExampleInputStream"
     output_table_name = "ExampleOutputStream"
-    # output_console_table = "ExampleOutputStreamPrint"
 
     # get application properties
     props = get_application_properties()
@@ -131,7 +129,8 @@ def main():
             AND price > 50
         """
     )
-       # get job status through TableResult
+
+    # get job status through TableResult
     if is_local:
         table_result.wait()
     else:

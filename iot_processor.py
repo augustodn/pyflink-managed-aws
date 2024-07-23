@@ -64,6 +64,26 @@ def create_input_table(table_name, stream_name, region, stream_initpos = None):
         )
     """
 
+def create_output_table(table_name, stream_name, region):
+    return f"""
+        CREATE TABLE {table_name} (
+            message_id VARCHAR(32),
+            sensor_id INTEGER,
+            temperature FLOAT,
+            alert STRING,
+            event_time TIMESTAMP(3),
+            WATERMARK FOR event_time AS event_time - INTERVAL '5' SECOND
+        )
+        PARTITIONED BY (sensor_id)
+        WITH (
+            'connector' = 'kinesis',
+            'stream' = '{stream_name}',
+            'aws.region' = '{region}',
+            'format' = 'json',
+            'json.timestamp-format.standard' = 'ISO-8601'
+        )
+    """
+
 def create_print_table(table_name):
     return f"""
         CREATE TABLE {table_name} (
@@ -114,13 +134,27 @@ def main():
     table_env.execute_sql(create_input_table(input_table_name, input_stream, input_region, stream_initpos))
 
     # 3. Creates a sink table writing to a Kinesis Data Stream
-    # table_env.execute_sql(create_table(output_table_name, output_stream, output_region))
+    table_env.execute_sql(create_output_table(output_table_name, output_stream, output_region))
     table_env.execute_sql(create_print_table(output_console_table))
 
     # 4. Inserts the source table data into the sink table
-    table_result = table_env.execute_sql(
+    table_env.execute_sql(
         f"""
         INSERT INTO {output_console_table}
+        SELECT
+            message_id,
+            sensor_id,
+            message.temperature AS temperature,
+            'High temperature detected' AS alert,
+            event_time
+        FROM {input_table_name}
+        WHERE
+            message.temperature > 30
+        """
+    )
+    table_result = table_env.execute_sql(
+        f"""
+        INSERT INTO {output_table_name}
         SELECT
             message_id,
             sensor_id,

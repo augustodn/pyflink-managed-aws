@@ -31,7 +31,7 @@ if is_local:
     CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
     table_env.get_config().get_configuration().set_string(
         "pipeline.jars",
-        f"file:///{CURRENT_DIR}/lib/flink-sql-connector-kinesis-4.2.0-1.18.jar",
+        f"file:///{CURRENT_DIR}/lib/flink-sql-connector-kinesis-4.3.0-1.19.jar",
     )
 
 def get_application_properties():
@@ -128,7 +128,7 @@ def main():
         SELECT * FROM {input_table_name}
         WHERE
             ticker = 'AAPL'
-            AND price > 80
+            AND price > 50
         """
     )
     table_result = table_env.execute_sql(
@@ -137,7 +137,7 @@ def main():
         SELECT * FROM {input_table_name}
         WHERE
             ticker = 'AAPL'
-            AND price > 80
+            AND price > 50
         """
     )
 

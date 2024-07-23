@@ -1,7 +1,7 @@
 import json
 import random
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 import uuid
 import boto3  # type: ignore
@@ -26,7 +26,7 @@ def generate_sensor_data() -> dict[str, Any]:
             "vibration": vibration,
         },
         # utc timestamp
-        "event_time": datetime.now().isoformat(),
+        "event_time": datetime.now(tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
     }
     return sensor_data
 

@@ -50,7 +50,7 @@ def create_input_table(table_name, stream_name, region, stream_initpos = None):
                 pressure FLOAT,
                 vibration FLOAT
             ),
-            event_time TIMESTAMP(3),
+            event_time TIMESTAMP_LTZ(3),
             WATERMARK FOR event_time AS event_time - INTERVAL '5' SECOND
         )
         PARTITIONED BY (sensor_id)
@@ -71,7 +71,7 @@ def create_output_table(table_name, stream_name, region):
             sensor_id INTEGER,
             temperature FLOAT,
             alert STRING,
-            event_time TIMESTAMP(3),
+            event_time TIMESTAMP_LTZ(3),
             WATERMARK FOR event_time AS event_time - INTERVAL '5' SECOND
         )
         PARTITIONED BY (sensor_id)
@@ -91,7 +91,7 @@ def create_print_table(table_name):
             sensor_id INTEGER,
             temperature FLOAT,
             alert STRING,
-            event_time TIMESTAMP(3),
+            event_time TIMESTAMP_LTZ(3),
             WATERMARK FOR event_time AS event_time - INTERVAL '5' SECOND
         )
         PARTITIONED BY (sensor_id)

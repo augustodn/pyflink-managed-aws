@@ -99,7 +99,7 @@ def main():
     # tables
     input_table_name = "ExampleInputStream"
     output_table_name = "ExampleOutputStream"
-    output_console_table = "ExampleOutputStreamPrint"
+    # output_console_table = "ExampleOutputStreamPrint"
 
     # get application properties
     props = get_application_properties()
@@ -119,10 +119,10 @@ def main():
 
     # 3. Creates a sink table writing to a Kinesis Data Stream
     table_env.execute_sql(create_table(output_table_name, output_stream, output_region))
-    table_env.execute_sql(create_print_table(output_console_table))
+    # table_env.execute_sql(create_print_table(output_console_table))
 
     # 4. Inserts the source table data into the sink table
-    table_env.execute_sql(
+    table_result = table_env.execute_sql(
         f"""
         INSERT INTO {output_table_name}
         SELECT * FROM {input_table_name}
@@ -131,17 +131,7 @@ def main():
             AND price > 50
         """
     )
-    table_result = table_env.execute_sql(
-        f"""
-        INSERT INTO {output_console_table}
-        SELECT * FROM {input_table_name}
-        WHERE
-            ticker = 'AAPL'
-            AND price > 50
-        """
-    )
-
-    # get job status through TableResult
+       # get job status through TableResult
     if is_local:
         table_result.wait()
     else:

@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.amazonaws</groupId>
-    <artifactId>managed-flink-pyflink-kinesis-and-s3sink</artifactId>
+    <artifactId>iot-processor</artifactId>
     <version>1.0.0</version>
 
     <properties>
@@ -27,11 +27,6 @@
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-kinesis</artifactId>
             <version>${aws.connector.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-parquet</artifactId>
-            <version>${flink.version}</version>
         </dependency>
     </dependencies>
 

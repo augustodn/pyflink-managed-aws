@@ -11,7 +11,7 @@
             <directory>${project.basedir}</directory>
             <outputDirectory>/</outputDirectory>
             <includes>
-                <include>iot_processor.py</include>
+                <include>kinesis_sink.py</include>
             </includes>
         </fileSet>
         <fileSet>

@@ -20,11 +20,5 @@
       "output.stream.name": "ExampleOutputStream",
       "aws.region": "us-east-1"
     }
-  },
-  {
-    "PropertyGroupId": "producer.config.1",
-    "PropertyMap": {
-      "output.bucket": "339713014948-data-lake"
-    }
   }
 ]

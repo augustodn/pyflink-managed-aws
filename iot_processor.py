@@ -104,8 +104,10 @@ def create_s3_table(table_name, bucket_name):
         PARTITIONED BY (sensor_id)
         WITH (
             'connector' = 'filesystem',
-            'path' = 's3://{bucket_name}/iot/',
-            'format' = 'parquet',
+            'path' = 's3://{bucket_name}/iot',
+            -- 'path' = '/tmp/iot',
+            'format' = 'json',
+            'json.timestamp-format.standard' = 'ISO-8601',
             'sink.partition-commit.policy.kind'='success-file',
             'sink.partition-commit.delay' = '1 min'
         )
@@ -162,24 +164,24 @@ def main():
     table_env.execute_sql(create_input_table(input_table_name, input_stream, input_region, stream_initpos))
 
     # 3. Creates a sink table writing to a Kinesis Data Stream
-    table_env.execute_sql(create_output_table(output_table_name, output_stream, output_region))
+    # table_env.execute_sql(create_output_table(output_table_name, output_stream, output_region))
     table_env.execute_sql(create_s3_table(s3_table_name, bucket_name))
 
     # 4. Inserts the source table data into the sink table
-    table_env.execute_sql(
-        f"""
-        INSERT INTO {output_table_name}
-        SELECT
-            message_id,
-            sensor_id,
-            message.temperature AS temperature,
-            'High temperature detected' AS alert,
-            event_time
-        FROM {input_table_name}
-        WHERE
-            message.temperature > 30
-        """
-    )
+    # table_env.execute_sql(
+    #     f"""
+    #     INSERT INTO {output_table_name}
+    #     SELECT
+    #         message_id,
+    #         sensor_id,
+    #         message.temperature AS temperature,
+    #         'High temperature detected' AS alert,
+    #         event_time
+    #     FROM {input_table_name}
+    #     WHERE
+    #         message.temperature > 30
+    #     """
+    # )
 
     table_result = table_env.execute_sql(
         f"""

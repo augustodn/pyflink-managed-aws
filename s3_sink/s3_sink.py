@@ -1,14 +1,3 @@
-# -*- coding: utf-8 -*-
-
-"""
-This module:
-    1. Creates a table environment
-    2. Creates a source table from a Kinesis Data Stream
-    3. Creates a sink table writing to a Kinesis Data Stream
-    4. Inserts filtered data from the source table data into the sink table and
-       prints it to the console
-"""
-
 from pyflink.table import EnvironmentSettings, StreamTableEnvironment  # type: ignore
 import os
 import json
@@ -30,7 +19,14 @@ if is_local:
     CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
     table_env.get_config().get_configuration().set_string(
         "pipeline.jars",
-        f"file:///{CURRENT_DIR}/lib/flink-sql-connector-kinesis-4.3.0-1.19.jar",
+        f"file:///{CURRENT_DIR}/target/pyflink-dependencies.jar",
+    )
+    table_env.get_config().get_configuration().set_string(
+        "execution.checkpointing.mode", "EXACTLY_ONCE"
+    )
+
+    table_env.get_config().get_configuration().set_string(
+        "execution.checkpointing.interval", "1 min"
     )
 
 def get_application_properties():
@@ -49,17 +45,22 @@ def property_map(props, property_group_id):
             return prop["PropertyMap"]
 
 
-def create_table(table_name, stream_name, region, stream_initpos = None):
+def create_input_table(table_name, stream_name, region, stream_initpos = None):
     init_pos = stream_initpos if stream_initpos else ''
 
     return f"""
         CREATE TABLE {table_name} (
-            ticker VARCHAR(6),
-            price DOUBLE,
-            event_time TIMESTAMP(3),
+            message_id VARCHAR(32),
+            sensor_id INTEGER,
+            message ROW(
+                temperature FLOAT,
+                pressure FLOAT,
+                vibration FLOAT
+            ),
+            event_time TIMESTAMP_LTZ(3),
             WATERMARK FOR event_time AS event_time - INTERVAL '5' SECOND
         )
-        PARTITIONED BY (ticker)
+        PARTITIONED BY (sensor_id)
         WITH (
             'connector' = 'kinesis',
             'stream' = '{stream_name}',
@@ -70,71 +71,76 @@ def create_table(table_name, stream_name, region, stream_initpos = None):
         )
     """
 
-def create_print_table(table_name):
+def create_s3_table(table_name, bucket_name):
     return f"""
         CREATE TABLE {table_name} (
-            ticker VARCHAR(6),
-            price DOUBLE,
-            event_time TIMESTAMP(3),
+            message_id VARCHAR(32),
+            sensor_id INTEGER,
+            message ROW(
+                temperature FLOAT,
+                pressure FLOAT,
+                vibration FLOAT
+            ),
+            event_time TIMESTAMP_LTZ(3),
             WATERMARK FOR event_time AS event_time - INTERVAL '5' SECOND
         )
+        PARTITIONED BY (sensor_id)
         WITH (
-            'connector' = 'print'
+            'connector' = 'filesystem',
+            'path' = 's3a://{bucket_name}/iot_raw_data/',
+            'format' = 'json',
+            'json.timestamp-format.standard' = 'ISO-8601',
+            'sink.partition-commit.policy.kind'='success-file',
+            'sink.partition-commit.delay' = '1 min'
         )
     """
 
 def main():
     # Application Property Keys
     input_property_group_key = "consumer.config.0"
-    producer_property_group_key = "producer.config.0"
+    s3_sink_property_map_key = "producer.config.0"
 
     input_stream_key = "input.stream.name"
     input_region_key = "aws.region"
     input_starting_position_key = "scan.stream.initpos"
 
-    output_stream_key = "output.stream.name"
-    output_region_key = "aws.region"
+    s3_bucket_key = "output.bucket"
 
     # tables
-    input_table_name = "ExampleInputStream"
-    output_table_name = "ExampleOutputStream"
+    input_table_name = "input_stream"
+    s3_table_name = "s3_sink"
 
     # get application properties
     props = get_application_properties()
+    print(props)
 
     input_property_map = property_map(props, input_property_group_key)
-    output_property_map = property_map(props, producer_property_group_key)
+    s3_sink_property_map = property_map(props, s3_sink_property_map_key)
 
     input_stream = input_property_map[input_stream_key]
     input_region = input_property_map[input_region_key]
     stream_initpos = input_property_map[input_starting_position_key]
 
-    output_stream = output_property_map[output_stream_key]
-    output_region = output_property_map[output_region_key]
+    s3_bucket = s3_sink_property_map[s3_bucket_key]
 
     # 2. Creates a source table from a Kinesis Data Stream
-    table_env.execute_sql(create_table(input_table_name, input_stream, input_region, stream_initpos))
+    table_env.execute_sql(create_input_table(input_table_name, input_stream, input_region, stream_initpos))
 
     # 3. Creates a sink table writing to a Kinesis Data Stream
-    table_env.execute_sql(create_table(output_table_name, output_stream, output_region))
-    # table_env.execute_sql(create_print_table(output_console_table))
+    # table_env.execute_sql(create_output_table(output_table_name, output_stream, output_region))
+    table_env.execute_sql(create_s3_table(s3_table_name, s3_bucket))
 
-    # 4. Inserts the source table data into the sink table
     table_result = table_env.execute_sql(
         f"""
-        INSERT INTO {output_table_name}
-        SELECT * FROM {input_table_name}
-        WHERE
-            ticker = 'AAPL'
-            AND price > 50
+        INSERT INTO {s3_table_name}
+        SELECT *
+        FROM {input_table_name}
         """
     )
 
     # get job status through TableResult
     if is_local:
         table_result.wait()
-    else:
-        print(table_result.get_job_client().get_job_status())
 
 
 if __name__ == "__main__":

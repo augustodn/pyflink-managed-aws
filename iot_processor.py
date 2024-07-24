@@ -107,7 +107,7 @@ def create_s3_table(table_name, bucket_name):
         PARTITIONED BY (sensor_id)
         WITH (
             'connector' = 'filesystem',
-            'path' = 's3a://{bucket_name}/iot_raw_data',
+            'path' = 's3a://{bucket_name}/iot_raw_data/',
             'format' = 'json',
             'json.timestamp-format.standard' = 'ISO-8601',
             'sink.partition-commit.policy.kind'='success-file',
@@ -134,21 +134,21 @@ def create_print_table(table_name):
 def main():
     # Application Property Keys
     input_property_group_key = "consumer.config.0"
-    producer_property_group_key = "producer.config.0"
+    # producer_property_group_key = "producer.config.0"
     s3_sink_property_map_key = "producer.config.1"
 
     input_stream_key = "input.stream.name"
     input_region_key = "aws.region"
     input_starting_position_key = "scan.stream.initpos"
 
-    output_stream_key = "output.stream.name"
-    output_region_key = "aws.region"
+    # output_stream_key = "output.stream.name"
+    # output_region_key = "aws.region"
 
     s3_bucket_key = "output.bucket"
 
     # tables
     input_table_name = "ExampleInputStream"
-    output_table_name = "ExampleOutputStream"
+    # output_table_name = "ExampleOutputStream"
     s3_table_name = "ExampleS3Table"
 
     # get application properties
@@ -156,15 +156,15 @@ def main():
     print(props)
 
     input_property_map = property_map(props, input_property_group_key)
-    output_property_map = property_map(props, producer_property_group_key)
+    # output_property_map = property_map(props, producer_property_group_key)
     s3_sink_property_map = property_map(props, s3_sink_property_map_key)
 
     input_stream = input_property_map[input_stream_key]
     input_region = input_property_map[input_region_key]
     stream_initpos = input_property_map[input_starting_position_key]
 
-    output_stream = output_property_map[output_stream_key]
-    output_region = output_property_map[output_region_key]
+    # output_stream = output_property_map[output_stream_key]
+    # output_region = output_property_map[output_region_key]
 
     s3_bucket = s3_sink_property_map[s3_bucket_key]
 
@@ -172,24 +172,24 @@ def main():
     table_env.execute_sql(create_input_table(input_table_name, input_stream, input_region, stream_initpos))
 
     # 3. Creates a sink table writing to a Kinesis Data Stream
-    table_env.execute_sql(create_output_table(output_table_name, output_stream, output_region))
+    # table_env.execute_sql(create_output_table(output_table_name, output_stream, output_region))
     table_env.execute_sql(create_s3_table(s3_table_name, s3_bucket))
 
     # 4. Inserts the source table data into the sink table
-    table_env.execute_sql(
-        f"""
-        INSERT INTO {output_table_name}
-        SELECT
-            message_id,
-            sensor_id,
-            message.temperature AS temperature,
-            'High temperature detected' AS alert,
-            event_time
-        FROM {input_table_name}
-        WHERE
-            message.temperature > 30
-        """
-    )
+    # table_env.execute_sql(
+    #     f"""
+    #     INSERT INTO {output_table_name}
+    #     SELECT
+    #         message_id,
+    #         sensor_id,
+    #         message.temperature AS temperature,
+    #         'High temperature detected' AS alert,
+    #         event_time
+    #     FROM {input_table_name}
+    #     WHERE
+    #         message.temperature > 30
+    #     """
+    # )
 
     table_result = table_env.execute_sql(
         f"""
@@ -202,8 +202,6 @@ def main():
     # get job status through TableResult
     if is_local:
         table_result.wait()
-    else:
-        print(table_result.get_job_client().get_job_status())
 
 
 if __name__ == "__main__":

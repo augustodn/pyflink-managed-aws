@@ -14,9 +14,8 @@ is_local = (
 
 if is_local:
     # only for local, overwrite variable to properties and pass in your jars delimited by a semicolon (;)
-    APPLICATION_PROPERTIES_FILE_PATH = "application_properties.json"  # local
-
     CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
+    APPLICATION_PROPERTIES_FILE_PATH = f"{CURRENT_DIR}/application_properties.json"  # local
     table_env.get_config().get_configuration().set_string(
         "pipeline.jars",
         f"file:///{CURRENT_DIR}/target/pyflink-dependencies.jar",
@@ -127,7 +126,6 @@ def main():
     table_env.execute_sql(create_input_table(input_table_name, input_stream, input_region, stream_initpos))
 
     # 3. Creates a sink table writing to a Kinesis Data Stream
-    # table_env.execute_sql(create_output_table(output_table_name, output_stream, output_region))
     table_env.execute_sql(create_s3_table(s3_table_name, s3_bucket))
 
     table_result = table_env.execute_sql(

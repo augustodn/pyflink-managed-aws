@@ -4,8 +4,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.amazonaws</groupId>
-    <artifactId>iot-processor</artifactId>
-    <version>1.0.0</version>
+    <artifactId>s3-sink</artifactId>
+    <version>0.0.1</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -14,6 +14,7 @@
         <jar.finalName>pyflink-dependencies</jar.finalName>
         <flink.version>1.19.1</flink.version>
         <kda.runtime.version>1.2.0</kda.runtime.version>
+        <aws.connector.version>4.3.0-1.19</aws.connector.version>
     </properties>
 
     <dependencies>
@@ -21,6 +22,11 @@
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-s3-fs-hadoop</artifactId>
             <version>${flink.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-kinesis</artifactId>
+            <version>${aws.connector.version}</version>
         </dependency>
     </dependencies>
 

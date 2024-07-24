@@ -135,6 +135,7 @@ def main():
     # Application Property Keys
     input_property_group_key = "consumer.config.0"
     producer_property_group_key = "producer.config.0"
+    s3_sink_property_map_key = "producer.config.1"
 
     input_stream_key = "input.stream.name"
     input_region_key = "aws.region"
@@ -143,17 +144,20 @@ def main():
     output_stream_key = "output.stream.name"
     output_region_key = "aws.region"
 
+    s3_bucket_key = "output.bucket"
+
     # tables
     input_table_name = "ExampleInputStream"
     output_table_name = "ExampleOutputStream"
     s3_table_name = "ExampleS3Table"
-    bucket_name = "339713014948-data-lake"
 
     # get application properties
     props = get_application_properties()
+    print(props)
 
     input_property_map = property_map(props, input_property_group_key)
     output_property_map = property_map(props, producer_property_group_key)
+    s3_sink_property_map = property_map(props, s3_sink_property_map_key)
 
     input_stream = input_property_map[input_stream_key]
     input_region = input_property_map[input_region_key]
@@ -162,12 +166,14 @@ def main():
     output_stream = output_property_map[output_stream_key]
     output_region = output_property_map[output_region_key]
 
+    s3_bucket = s3_sink_property_map[s3_bucket_key]
+
     # 2. Creates a source table from a Kinesis Data Stream
     table_env.execute_sql(create_input_table(input_table_name, input_stream, input_region, stream_initpos))
 
     # 3. Creates a sink table writing to a Kinesis Data Stream
     table_env.execute_sql(create_output_table(output_table_name, output_stream, output_region))
-    table_env.execute_sql(create_s3_table(s3_table_name, bucket_name))
+    table_env.execute_sql(create_s3_table(s3_table_name, s3_bucket))
 
     # 4. Inserts the source table data into the sink table
     table_env.execute_sql(

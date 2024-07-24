@@ -1,15 +1,18 @@
+import concurrent.futures
 import json
 import random
 import time
+import uuid
 from datetime import datetime, timezone
 from typing import Any
-import uuid
+
 import boto3  # type: ignore
 
-
-SLEEP_TIME = 0.5
+SLEEP_TIME = 5
 REGION_NAME = "us-east-1"
 STREAM_NAME = "ExampleInputStream"
+MAX_WORKERS = 10
+
 
 def generate_sensor_data() -> dict[str, Any]:
     """Generates random sensor data. It also adds a timestamp for traceability."""
@@ -26,9 +29,19 @@ def generate_sensor_data() -> dict[str, Any]:
             "vibration": vibration,
         },
         # utc timestamp
-        "event_time": datetime.now(tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+        "event_time": datetime.now(tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
     }
     return sensor_data
+
+
+def put_record(kinesis_cient: boto3.client, data: dict[str, Any]) -> None:
+    kinesis_cient.put_record(
+        StreamName=STREAM_NAME,
+        Data=json.dumps(data),
+        PartitionKey="partitionkey",
+    )
+    print(f"Produced: {data}")
+    time.sleep(SLEEP_TIME)
 
 
 def main() -> None:
@@ -38,14 +51,14 @@ def main() -> None:
     """
     kinesis_client = boto3.client("kinesis", region_name=REGION_NAME)
     while True:
-        sensor_data = generate_sensor_data()
-        kinesis_client.put_record(
-            StreamName=STREAM_NAME,
-            Data=json.dumps(sensor_data),
-            PartitionKey="partitionkey",
-        )
-        print(f"Produced: {sensor_data}")
-        time.sleep(SLEEP_TIME)
+        data_list = [generate_sensor_data() for _ in range(MAX_WORKERS)]
+        # Send multiple records using ThreadPoolExecutor
+        with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+            records = [
+                executor.submit(put_record, kinesis_client, sensor_data)
+                for sensor_data in data_list
+            ]
+            concurrent.futures.wait(records)
 
 
 if __name__ == "__main__":

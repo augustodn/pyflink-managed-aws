@@ -105,7 +105,6 @@ def create_s3_table(table_name, bucket_name):
         WITH (
             'connector' = 'filesystem',
             'path' = 's3://{bucket_name}/iot',
-            -- 'path' = '/tmp/iot',
             'format' = 'json',
             'json.timestamp-format.standard' = 'ISO-8601',
             'sink.partition-commit.policy.kind'='success-file',

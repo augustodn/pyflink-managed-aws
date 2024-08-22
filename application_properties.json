@@ -9,13 +9,20 @@
   {
     "PropertyGroupId": "consumer.config.0",
     "PropertyMap": {
-      "input.stream.name": "ExampleInputStream",
+      "input.stream.name": "sensors",
       "scan.stream.initpos": "LATEST",
       "aws.region": "us-east-1"
     }
   },
   {
     "PropertyGroupId": "producer.config.0",
+    "PropertyMap": {
+      "output.stream.name": "alerts",
+      "aws.region": "us-east-1"
+    }
+  },
+  {
+    "PropertyGroupId": "producer.config.1",
     "PropertyMap": {
       "output.bucket": "339713014948-data-lake"
     }

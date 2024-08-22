@@ -8,9 +8,9 @@ from typing import Any
 
 import boto3  # type: ignore
 
-SLEEP_TIME = 5
+SLEEP_TIME = 0.5
 REGION_NAME = "us-east-1"
-STREAM_NAME = "ExampleInputStream"
+STREAM_NAME = "sensors"
 MAX_WORKERS = 10
 
 

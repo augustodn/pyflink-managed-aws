@@ -1,42 +1,43 @@
-from pyflink.table import EnvironmentSettings, StreamTableEnvironment  # type: ignore
-import os
 import json
+import os
 
-# 1. Creates a Table Environment
-env_settings = EnvironmentSettings.in_streaming_mode()
-table_env = StreamTableEnvironment.create(environment_settings=env_settings)
+from pyflink.table import EnvironmentSettings, StreamTableEnvironment  # type: ignore
 
-APPLICATION_PROPERTIES_FILE_PATH = "/etc/flink/application_properties.json"  # on kda
+PROPERTIES_FILEPATH = "/etc/flink/application_properties.json"  # on kda
 
-is_local = (
-    True if os.environ.get("IS_LOCAL") else False
-)  # set this env var in your local environment
 
-if is_local:
-    # only for local, overwrite variable to properties and pass in your jars delimited by a semicolon (;)
-    CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
-    APPLICATION_PROPERTIES_FILE_PATH = f"{CURRENT_DIR}/application_properties.json"  # local
+def get_environment() -> bool:
+    return True if os.environ.get("IS_LOCAL") else False
 
+
+def set_local_config(table_env: StreamTableEnvironment) -> StreamTableEnvironment:
+    # only for local, overwrite variable to properties and
+    # in this case since we're using maven to package dependecies in a big fat jar
+    # only a pyflink-dependencies.jar is needed
+    # Otherwise you can pass in your jars delimited by a semicolon (;) in the second
+    # argument
+    current_dir = os.path.dirname(os.path.realpath(__file__))
     table_env.get_config().get_configuration().set_string(
         "pipeline.jars",
-        f"file:///{CURRENT_DIR}/target/pyflink-dependencies.jar",
+        f"file:///{current_dir}/target/pyflink-dependencies.jar",
     )
     table_env.get_config().get_configuration().set_string(
         "execution.checkpointing.mode", "EXACTLY_ONCE"
     )
-
     table_env.get_config().get_configuration().set_string(
         "execution.checkpointing.interval", "1 min"
     )
 
-def get_application_properties():
-    if os.path.isfile(APPLICATION_PROPERTIES_FILE_PATH):
-        with open(APPLICATION_PROPERTIES_FILE_PATH, "r") as file:
+    return table_env
+
+def get_application_properties(properties_filepath: str) -> dict:
+    if os.path.isfile(properties_filepath):
+        with open(properties_filepath, "r") as file:
             contents = file.read()
             properties = json.loads(contents)
             return properties
     else:
-        print(f'A file at "{APPLICATION_PROPERTIES_FILE_PATH}" was not found')
+        raise Exception(f"A file at {properties_filepath} was not found")
 
 
 def property_map(props, property_group_id):
@@ -45,8 +46,8 @@ def property_map(props, property_group_id):
             return prop["PropertyMap"]
 
 
-def create_input_table(table_name, stream_name, region, stream_initpos = None):
-    init_pos = stream_initpos if stream_initpos else ''
+def create_input_table(table_name, stream_name, region, stream_initpos=None):
+    init_pos = stream_initpos if stream_initpos else ""
 
     return f"""
         CREATE TABLE {table_name} (
@@ -71,6 +72,7 @@ def create_input_table(table_name, stream_name, region, stream_initpos = None):
         )
     """
 
+
 def create_output_table(table_name, stream_name, region):
     return f"""
         CREATE TABLE {table_name} (
@@ -90,6 +92,7 @@ def create_output_table(table_name, stream_name, region):
             'json.timestamp-format.standard' = 'ISO-8601'
         )
     """
+
 
 def create_s3_table(table_name, bucket_name):
     return f"""
@@ -115,6 +118,7 @@ def create_s3_table(table_name, bucket_name):
         )
     """
 
+
 def create_print_table(table_name):
     return f"""
         CREATE TABLE {table_name} (
@@ -130,6 +134,7 @@ def create_print_table(table_name):
             'connector' = 'print'
         )
     """
+
 
 def main():
     # Application Property Keys
@@ -148,9 +153,20 @@ def main():
     output_table_name = "kinesis_output_table"
     s3_table_name = "s3_output_table"
     bucket_name = "339713014948-data-lake"
+    # 1. Creates a Table Environment
+    env_settings = EnvironmentSettings.in_streaming_mode()
+    table_env = StreamTableEnvironment.create(environment_settings=env_settings)
+
+    is_local = get_environment()
+
+    # 1. Sets local environment
+    if is_local:
+        current_dir = os.path.dirname(os.path.realpath(__file__))
+        PROPERTIES_FILEPATH = f"{current_dir}/application_properties.json"  # local
+        table_env = set_local_config(table_env)
 
     # get application properties
-    props = get_application_properties()
+    props = get_application_properties(PROPERTIES_FILEPATH)
 
     input_property_map = property_map(props, input_property_group_key)
     output_property_map = property_map(props, producer_property_group_key)
@@ -163,15 +179,19 @@ def main():
     output_region = output_property_map[output_region_key]
 
     # 2. Creates a source table from a Kinesis Data Stream
-    table_env.execute_sql(create_input_table(input_table_name, input_stream, input_region, stream_initpos))
+    table_env.execute_sql(
+        create_input_table(input_table_name, input_stream, input_region, stream_initpos)
+    )
 
     # 3. Creates a sink table writing to a Kinesis Data Stream
-    table_env.execute_sql(create_output_table(output_table_name, output_stream, output_region))
+    table_env.execute_sql(
+        create_output_table(output_table_name, output_stream, output_region)
+    )
     table_env.execute_sql(create_s3_table(s3_table_name, bucket_name))
 
     # 4. Inserts the source table data into the sink table
-    stm_set = table_env.create_statement_set()
-    stm_set.add_insert_sql(
+    statement_set = table_env.create_statement_set()
+    statement_set.add_insert_sql(
         f"""
         INSERT INTO {output_table_name}
         SELECT
@@ -183,14 +203,14 @@ def main():
         FROM {input_table_name}
         WHERE
             message.temperature > 30
-        """ # nosec
+        """  # nosec
     )
 
-    stm_set.add_insert_sql(
+    statement_set.add_insert_sql(
         f"INSERT INTO {s3_table_name} SELECT * FROM {input_table_name}"  # nosec
     )
 
-    table_result = stm_set.execute()
+    table_result = statement_set.execute()
 
     # get job status through TableResult
     if is_local:

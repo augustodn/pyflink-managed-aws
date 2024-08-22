@@ -3,7 +3,6 @@ import os
 
 from pyflink.table import EnvironmentSettings, StreamTableEnvironment  # type: ignore
 
-PROPERTIES_FILEPATH = "/etc/flink/application_properties.json"  # on kda
 
 
 def get_environment() -> bool:
@@ -37,7 +36,8 @@ def get_application_properties(properties_filepath: str) -> dict:
             properties = json.loads(contents)
             return properties
     else:
-        raise Exception(f"A file at {properties_filepath} was not found")
+        print(f"A file at {properties_filepath} was not found")
+        return {}
 
 
 def property_map(props, property_group_id):
@@ -138,8 +138,11 @@ def create_print_table(table_name):
 
 def main():
     # Application Property Keys
+    PROPERTIES_FILEPATH = "/etc/flink/application_properties.json"  # on kda
+
     input_property_group_key = "consumer.config.0"
     producer_property_group_key = "producer.config.0"
+    bucket_property_group_key = "producer.config.1"
 
     input_stream_key = "input.stream.name"
     input_region_key = "aws.region"
@@ -148,11 +151,11 @@ def main():
     output_stream_key = "output.stream.name"
     output_region_key = "aws.region"
 
+    bucket_stream_key = "output.bucket"
     # tables
     input_table_name = "kinesis_input_table"
     output_table_name = "kinesis_output_table"
     s3_table_name = "s3_output_table"
-    bucket_name = "339713014948-data-lake"
     # 1. Creates a Table Environment
     env_settings = EnvironmentSettings.in_streaming_mode()
     table_env = StreamTableEnvironment.create(environment_settings=env_settings)
@@ -165,11 +168,13 @@ def main():
         PROPERTIES_FILEPATH = f"{current_dir}/application_properties.json"  # local
         table_env = set_local_config(table_env)
 
+    print(PROPERTIES_FILEPATH)
     # get application properties
     props = get_application_properties(PROPERTIES_FILEPATH)
 
     input_property_map = property_map(props, input_property_group_key)
     output_property_map = property_map(props, producer_property_group_key)
+    bucket_property_map = property_map(props, bucket_property_group_key)
 
     input_stream = input_property_map[input_stream_key]
     input_region = input_property_map[input_region_key]
@@ -177,6 +182,8 @@ def main():
 
     output_stream = output_property_map[output_stream_key]
     output_region = output_property_map[output_region_key]
+
+    bucket_name = bucket_property_map[bucket_stream_key]
 
     # 2. Creates a source table from a Kinesis Data Stream
     table_env.execute_sql(

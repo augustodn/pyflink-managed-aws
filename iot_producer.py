@@ -8,7 +8,7 @@ from typing import Any
 
 import boto3  # type: ignore
 
-SLEEP_TIME = 0.5
+SLEEP_TIME = 2
 REGION_NAME = "us-east-1"
 STREAM_NAME = "sensors"
 MAX_WORKERS = 10

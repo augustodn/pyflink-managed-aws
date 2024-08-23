@@ -1,6 +1,6 @@
 # Streaming ETL with AWS Flink Managed Service
 
-This repository contains the implementation of a streaming ETL pipeline using AWS Flink Managed Service. The project showcases a simple streaming filter and will also include testing of various window events like Tumbling, Sliding, and Session Windows.
+This repository contains the implementation of a streaming ETL pipeline using AWS Flink Managed Service. The project showcases a simple streaming filter.
 
 ## Table of Contents
 

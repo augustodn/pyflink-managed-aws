@@ -24,7 +24,7 @@
   {
     "PropertyGroupId": "producer.config.1",
     "PropertyMap": {
-      "output.bucket": "339713014948-data-lake"
+      "output.bucket": "[datalake-bucket]"
     }
   }
 ]

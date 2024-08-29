@@ -34,7 +34,7 @@ Follow these steps to set up the project on your local machine:
 1. **Clone the Repository**
 
    ```bash
-   git clone https://github.com/yourusername/streaming-etl-flink.git
+   git clone https://github.com/augustodn/pyflink-managed-aws.git
    cd streaming-etl-flink
    ```
 
